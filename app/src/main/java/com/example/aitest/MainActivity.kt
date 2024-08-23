@@ -1,35 +1,32 @@
 package com.example.aitest
 
 import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.navigateUp
+import androidx.navigation.ui.setupActionBarWithNavController
+import androidx.navigation.ui.setupWithNavController
 import com.example.aitest.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+    private lateinit var navController: NavController
+    private lateinit var appBarConfiguration: AppBarConfiguration
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        binding.button.setOnClickListener {
-            val random = (1..20).random()
-            try {
-                if (random > 10) {
-                    throw Exception("Error: $random")
-                }
-                showToast("Success: $random")
-            } catch (e: Exception) {
-                showToast(e.message ?: "Error")
-            }
-        }
+        val navHostFragment = supportFragmentManager.findFragmentById(binding.navHostFragmentContainer.id) as NavHostFragment
+        navController = navHostFragment.navController
 
+        binding.bottomNavigation.setupWithNavController(navController)
     }
-    private fun showToast(message: String) {
-        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
+
+    override fun onSupportNavigateUp(): Boolean {
+        return navController.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
     }
 }
