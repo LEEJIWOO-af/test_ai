@@ -20,6 +20,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
           set -e
           export GH_CLI_NO_PROMPT=1
           export GH_CLI_COLLECT_USAGE_DATA="false"
