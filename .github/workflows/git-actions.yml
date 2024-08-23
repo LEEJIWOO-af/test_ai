@@ -25,8 +25,8 @@ jobs:
           export GH_CLI_COLLECT_USAGE_DATA="false"
           changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
           for file in $changed_files; do
-            # Copilot CLI 명령어에 --no-telemetry 옵션 추가
-            copilot_suggestions=$(gh copilot suggest "$file" --no-telemetry | sed 's/\x1B\[[0-9;]*[a-zA-Z]//g' || echo "Error: Failed to analyze $file")
+            # yes 명령어를 사용하여 사용자 입력 자동화
+            copilot_suggestions=$(yes | gh copilot suggest "$file" --no-telemetry | sed 's/\x1B\[[0-9;]*[a-zA-Z]//g' || echo "Error: Failed to analyze $file")
             if [[ "$copilot_suggestions" == *"Error: Failed"* ]]; then
               echo "$copilot_suggestions" >> copilot_review.txt
             else
