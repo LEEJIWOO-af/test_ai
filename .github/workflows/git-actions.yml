@@ -15,8 +15,7 @@ jobs:
       - name: Authenticate with GitHub CLI
         run: gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
       - name: Install GitHub Copilot CLI
-        run: |
-          gh extension install github/gh-copilot
+        run: gh extension install github/gh-copilot
       - name: Run Copilot analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -24,10 +23,10 @@ jobs:
           set -e
           export GH_CLI_NO_PROMPT=1
           export GH_CLI_COLLECT_USAGE_DATA="false"
-          export GH_COPILOT_COLLECT_USAGE_DATA="false"
           changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
           for file in $changed_files; do
-            copilot_suggestions=$(gh copilot suggest "$file" 2>/dev/null || echo "Error: Failed to analyze $file")
+            # Copilot CLI 명령어에 --no-telemetry 옵션 추가
+            copilot_suggestions=$(gh copilot suggest "$file" --no-telemetry | sed 's/\x1B\[[0-9;]*[a-zA-Z]//g' || echo "Error: Failed to analyze $file")
             if [[ "$copilot_suggestions" == *"Error: Failed"* ]]; then
               echo "$copilot_suggestions" >> copilot_review.txt
             else
