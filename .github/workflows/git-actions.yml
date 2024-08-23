@@ -4,6 +4,10 @@ on:
   pull_request:
     types: [opened, synchronize]
 
+permissions:
+  issues: write
+  pull-requests: write
+
 jobs:
   code-review:
     runs-on: ubuntu-latest
@@ -13,7 +17,9 @@ jobs:
           fetch-depth: 0
 
       - name: Authenticate with GitHub CLI
-        run: gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | gh auth login --with-token
 
       - name: Install GitHub Copilot CLI
         run: |
