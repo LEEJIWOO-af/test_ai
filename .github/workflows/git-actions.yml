@@ -1,13 +1,10 @@
 name: Automated Code Review
-
 on:
   pull_request:
     types: [opened, synchronize]
-
 permissions:
   issues: write
   pull-requests: write
-
 jobs:
   code-review:
     runs-on: ubuntu-latest
@@ -15,24 +12,22 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-
       - name: Authenticate with GitHub CLI
         run: gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
-
       - name: Install GitHub Copilot CLI
         run: |
           gh extension install github/gh-copilot
-
       - name: Run Copilot analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          export GH_CLI_NO_PROMPT=1  # 터미널에서 사용자의 입력을 요구하지 않도록 설정
-          export GH_CLI_COLLECT_USAGE_DATA="false"  # GitHub Copilot CLI의 사용 데이터 수집을 비활성화
+          export GH_CLI_NO_PROMPT=1
+          export GH_CLI_COLLECT_USAGE_DATA="false"
+          export GH_COPILOT_COLLECT_USAGE_DATA="false"
           changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
           for file in $changed_files; do
-            copilot_suggestions=$(gh copilot suggest "$file" | sed 's/\x1B\[[0-9;]*[a-zA-Z]//g' || echo "Error: Failed to analyze $file")
+            copilot_suggestions=$(gh copilot suggest "$file" 2>/dev/null || echo "Error: Failed to analyze $file")
             if [[ "$copilot_suggestions" == *"Error: Failed"* ]]; then
               echo "$copilot_suggestions" >> copilot_review.txt
             else
@@ -41,7 +36,6 @@ jobs:
               echo "---------------------------------" >> copilot_review.txt
             fi
           done
-
       - name: Post review comments
         uses: actions/github-script@v6
         with:
