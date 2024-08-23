@@ -12,25 +12,28 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: '3.x'
+      - name: Authenticate with GitHub CLI
+        run: gh auth login --with-token <<< ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Install dependencies
+      - name: Install GitHub Copilot CLI
         run: |
-          pip install github-copilot-cli
+          gh extension install github/gh-copilot
 
       - name: Run Copilot analysis
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          set -e
           changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
           for file in $changed_files; do
-            copilot_suggestions=$(github-copilot-cli suggest "$file")
-            echo "Copilot suggestions for $file:" >> copilot_review.txt
-            echo "$copilot_suggestions" >> copilot_review.txt
-            echo "---------------------------------" >> copilot_review.txt
+            copilot_suggestions=$(gh copilot suggest "$file" || echo "Error: Failed to analyze $file")
+            if [[ "$copilot_suggestions" == *"Error: Failed"* ]]; then
+              echo "$copilot_suggestions" >> copilot_review.txt
+            else
+              echo "Copilot suggestions for $file:" >> copilot_review.txt
+              echo "$copilot_suggestions" >> copilot_review.txt
+              echo "---------------------------------" >> copilot_review.txt
+            fi
           done
 
       - name: Post review comments
