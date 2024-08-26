@@ -9,9 +9,6 @@
         android:name="com.example.aitest.FirstFragment"
         android:label="First Fragment"
         tools:layout="@layout/fragment_first" >
-        <action
-            android:id="@+id/action_firstFragment_to_secondFragment"
-            app:destination="@id/secondFragment" />
     </fragment>
 
     <fragment
@@ -19,4 +16,10 @@
         android:name="com.example.aitest.SecondFragment"
         android:label="Second Fragment"
         tools:layout="@layout/fragment_second" />
+
+    <fragment
+        android:id="@+id/thirdFragment"
+        android:name="com.example.aitest.ThirdFragment"
+        android:label="Third Fragment"
+        tools:layout="@layout/fragment_third" />
 </navigation>

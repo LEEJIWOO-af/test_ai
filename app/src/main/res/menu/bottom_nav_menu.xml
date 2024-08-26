@@ -8,4 +8,8 @@
         android:id="@+id/secondFragment"
         android:icon="@drawable/baseline_add_alarm_24"
         android:title="Second" />
+    <item
+        android:id="@+id/thirdFragment"
+        android:icon="@drawable/baseline_brightness_high_24"
+        android:title="Third" />
 </menu>
