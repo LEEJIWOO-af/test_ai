@@ -52,4 +52,16 @@ dependencies {
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
+
+    // Views/Fragments integration
+    implementation(libs.androidx.navigation.fragment)
+    implementation(libs.androidx.navigation.ui)
+
+    // Retrofit and Gson dependencies
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    // Glide dependency
+    implementation(libs.glide)
+    kapt(libs.glide)
 }
