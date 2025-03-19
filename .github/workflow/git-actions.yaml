@@ -1,0 +1,48 @@
+name: Automated Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  code-review:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Install dependencies
+        run: |
+          pip install github-copilot-cli
+
+      - name: Run Copilot analysis
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          changed_files=$(git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }})
+          for file in $changed_files; do
+            copilot_suggestions=$(github-copilot-cli suggest "$file")
+            echo "Copilot suggestions for $file:" >> copilot_review.txt
+            echo "$copilot_suggestions" >> copilot_review.txt
+            echo "---------------------------------" >> copilot_review.txt
+          done
+
+      - name: Post review comments
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const fs = require('fs');
+            const reviewContent = fs.readFileSync('copilot_review.txt', 'utf8');
+            await github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Automated Code Review:\n\n```\n' + reviewContent + '\n```'
+            });
